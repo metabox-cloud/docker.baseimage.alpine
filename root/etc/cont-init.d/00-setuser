@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+
+# Change the UID and GID if set
+groupmod -o -g ${CGID} app
+usermod -o -u ${CUID} app

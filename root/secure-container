@@ -1,0 +1,49 @@
+#!/bin/sh
+
+
+# Improve strength of diffie-hellman-group-exchange-sha256 (Custom DH with SHA2).
+# See https://stribika.github.io/2015/01/04/secure-secure-shell.html
+#
+# Columns in the moduli file are:
+# Time Type Tests Tries Size Generator Modulus
+#
+# This file is provided by the openssh package on Fedora.
+moduli=/etc/ssh/moduli
+
+if [[ -f ${moduli} ]]; then
+  echo "[secure-container] improve strength of diffie-hellman-group-exchange-sha256."
+  cp ${moduli} ${moduli}.orig
+  awk '$5 >= 2000' ${moduli}.orig > ${moduli}
+  rm -f ${moduli}.orig
+fi
+
+# Remove unnecessary user accounts.
+echo "[secure-container] remove unnecessary users and groups."
+sed -i -r "/^(app|root)/!d" /etc/group
+sed -i -r "/^(app|root)/!d" /etc/passwd
+rm -fr /etc/default/useradd
+
+sysdirs="
+  /bin
+  /etc
+  /lib
+  /sbin
+  /usr
+"
+
+# Remove crufty...
+#   /etc/shadow-
+#   /etc/passwd-
+#   /etc/group-
+echo "[secure-container] remove crufty"
+find $sysdirs -xdev -type f -regex '.*-$' -exec rm -f {} +
+
+# Ensure system dirs are owned by root and not writable by anybody else.
+echo "[secure-container] ensure system dirs are owned and ONLY writable by root."
+find $sysdirs -xdev -type d \
+  -exec chown root:root {} \; \
+  -exec chmod 0755 {} \;
+
+# Remove broken symlinks (because we removed the targets above).
+echo "[secure-container] Remove broken symlinks."
+find $sysdirs -xdev -type l -exec test ! -e {} \; -delete

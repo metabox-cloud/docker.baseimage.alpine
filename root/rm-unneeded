@@ -1,0 +1,31 @@
+#!/bin/sh
+
+echo "[rm-unneeded] remove init scripts since we do not use them."
+rm -fr /etc/init.d
+rm -fr /lib/rc
+rm -fr /etc/conf.d
+rm -fr /etc/inittab
+rm -fr /etc/runlevels
+rm -fr /etc/rc.conf
+
+echo "[rm-unneeded] remove kernel tunables since we do not need them."
+rm -fr /etc/sysctl*
+rm -fr /etc/modprobe.d
+rm -fr /etc/modules
+rm -fr /etc/mdev.conf
+rm -fr /etc/acpi
+
+echo "[rm-unneeded] remove unused dirs from /."
+rm -fr /root
+rm -fr /home
+rm -fr /media
+rm -fr /srv
+rm -fr /mnt
+
+echo "[rm-unneeded] remove fstab since it isn't used in a container."
+rm -f /etc/fstab
+
+echo "[rm-unneeded] remove al existing crontabs."
+rm -fr /var/spool/cron
+rm -fr /etc/crontabs
+rm -fr /etc/periodic
